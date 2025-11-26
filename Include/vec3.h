@@ -1,3 +1,8 @@
+#include <cmath>
+
+using std::sqrt;
+using std::fmin;
+
 #ifndef VEC3_H
 #define VEC3_H
 
