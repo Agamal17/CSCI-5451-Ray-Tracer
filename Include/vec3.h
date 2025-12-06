@@ -14,7 +14,9 @@ struct vec3{
 
   vec3(float x, float y, float z) : x(x), y(y), z(z) {}
   vec3() : x(0), y(0), z(0) {}
-
+  vec3 operator-() const {
+        return vec3(-x, -y, -z);
+    }
   //Clamp each component (used to clamp pixel colors)
   vec3 clampTo1(){
     return vec3(fmin(x,1),fmin(y,1),fmin(z,1));
