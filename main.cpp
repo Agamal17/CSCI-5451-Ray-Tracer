@@ -61,73 +61,52 @@ void test_triangle_parts(const Scene &scene)
 {
     std::cout << "=== Test Chandan's triangle parts ===\n";
 
-    if (scene.triangles.empty() || scene.vertices.size() < 3) {
+    if (scene.triangles.empty()) {
         std::cout << "no triangles in this scene\n";
         std::cout << "=== End triangle test ===\n";
         return;
     }
 
-    // Use the first triangle
     const Triangle &tri = scene.triangles[0];
-    const vec3 &v0 = scene.vertices[tri.v[0]];
-    const vec3 &v1 = scene.vertices[tri.v[1]];
-    const vec3 &v2 = scene.vertices[tri.v[2]];
 
-    // 1. Face normal (normalized)
-    vec3 faceN = triangleNormal(v0, v1, v2);
-    std::cout << "face normal = (" << faceN.x << ", " << faceN.y << ", " << faceN.z << ")\n";
+    const vec3 &v0 = tri.v1;
+    const vec3 &v1 = tri.v2;
+    const vec3 &v2 = tri.v3;
 
-    // 2. Centroid of the triangle
-    vec3 centroid  = (1.0f / 3.0f) * (v0 + v1 + v2);
+    vec3 faceN = tri.triPlane;
+    faceN = normalize3(faceN);
 
-    // 3. Ray: start 5 units behind the triangle along -normal, shoot along +normal
-    vec3 rayOrigin = centroid - 5.0f * faceN;
-    vec3 rayDir    = faceN;
+    std::cout << "face normal = ("
+              << faceN.x << ", " << faceN.y << ", " << faceN.z << ")\n";
+
+    vec3 centroid = (1.0f / 3.0f) * (v0 + v1 + v2);
 
     Ray ray;
-    ray.origin = rayOrigin;
-    ray.dir    = normalize3(rayDir);
+    ray.origin = centroid - 5.0f * faceN;
+    ray.dir    = faceN; // already normalized
 
-    float t_hit, b0, b1, b2;
-    bool hit = intersectTriangle(v0, v1, v2,
-                                 ray,
-                                 1e-3f, 1e9f,
-                                 t_hit, b0, b1, b2);
+    double dist = rayTriangleIntersect(ray, tri);
+    double INF  = std::numeric_limits<double>::infinity();
 
-    if (!hit) {
+    if (dist >= INF) {
         std::cout << "triangle test: ray did NOT hit the first triangle\n";
         std::cout << "=== End triangle test ===\n";
         return;
     }
 
+    vec3 hitPoint = ray.origin + ray.dir * (float)dist;
+
     std::cout << "triangle test: ray HIT the first triangle\n";
-    std::cout << "  t_hit = " << t_hit << "\n";
-    std::cout << "  barycentric (b0,b1,b2) = ("
-              << b0 << ", " << b1 << ", " << b2 << ")\n";
-    std::cout << "  sum = " << (b0 + b1 + b2) << "\n";
+    std::cout << "  distance = " << dist << "\n";
+    std::cout << "  hitPoint = ("
+              << hitPoint.x << ", " << hitPoint.y << ", " << hitPoint.z << ")\n";
 
-    // 4. If we have per-vertex normals, use barycentric interpolation
-    if (tri.has_vertex_normals &&
-        !scene.normals.empty() &&
-        tri.n[0] >= 0 && tri.n[1] >= 0 && tri.n[2] >= 0)
-    {
-        const vec3 &n0 = scene.normals[tri.n[0]];
-        const vec3 &n1 = scene.normals[tri.n[1]];
-        const vec3 &n2 = scene.normals[tri.n[2]];
+    vec3 N = tri.get_normal_at_point(hitPoint);
 
-        vec3 n_interp = normalize3(
-            b0 * n0 +
-            b1 * n1 +
-            b2 * n2
-        );
+    if (dot3(N, ray.dir) > 0.0f) N = -1.0f * N;
 
-        std::cout << "  interpolated normal = ("
-                  << n_interp.x << ", "
-                  << n_interp.y << ", "
-                  << n_interp.z << ")\n";
-    } else {
-        std::cout << "  (no per-vertex normals, using face normal only)\n";
-    }
+    std::cout << "  normal@hit = ("
+              << N.x << ", " << N.y << ", " << N.z << ")\n";
 
     std::cout << "=== End triangle test ===\n";
 }

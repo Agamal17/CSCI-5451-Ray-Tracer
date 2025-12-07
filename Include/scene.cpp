@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "intersect.h"
 
 #include <fstream>
 #include <sstream>
@@ -29,9 +30,6 @@ Direction3 Sphere::get_normal_at_point(const Point3 &p) const {
 
     return Direction3(n);
 }
-
-
-
 
 Scene parseSceneFile(const std::string &filename,
                      int &img_width,
@@ -160,27 +158,42 @@ Scene parseSceneFile(const std::string &filename,
         } else if (key == "triangle") {
             int v0, v1, v2;
             ss >> v0 >> v1 >> v2;
+
             Triangle t;
-            t.v[0] = v0;
-            t.v[1] = v1;
-            t.v[2] = v2;
-            t.n[0] = t.n[1] = t.n[2] = -1;
-            t.material_id   = currentMatId;
-            t.has_vertex_normals = false;
+            t.v1 = scene.vertices[v0];
+            t.v2 = scene.vertices[v1];
+            t.v3 = scene.vertices[v2];
+
+            vec3 fn = normalize3(cross(t.v2 - t.v1, t.v3 - t.v1));
+            t.triPlane = Direction3(fn);
+
+            t.n1 = t.n2 = t.n3 = t.triPlane;
+            t.flat = true;
+
+            t.material_id = currentMatId;
             scene.triangles.push_back(t);
+
         } else if (key == "normal_triangle") {
             int v0, v1, v2, n0, n1, n2;
             ss >> v0 >> v1 >> v2 >> n0 >> n1 >> n2;
+
             Triangle t;
-            t.v[0] = v0;
-            t.v[1] = v1;
-            t.v[2] = v2;
-            t.n[0] = n0;
-            t.n[1] = n1;
-            t.n[2] = n2;
-            t.material_id   = currentMatId;
-            t.has_vertex_normals = true;
+            t.v1 = scene.vertices[v0];
+            t.v2 = scene.vertices[v1];
+            t.v3 = scene.vertices[v2];
+
+            t.n1 = scene.normals[n0];
+            t.n2 = scene.normals[n1];
+            t.n3 = scene.normals[n2];
+
+            vec3 fn = normalize3(cross(t.v2 - t.v1, t.v3 - t.v1));
+            t.triPlane = Direction3(fn);
+
+            t.flat = false;
+
+            t.material_id = currentMatId;
             scene.triangles.push_back(t);
+
         } else {
             // Other keys (vertex, triangle, lights, etc.) are left for teammates
             // Chandan's Comment : Updated Triange and Normalized Triangle Part
@@ -188,4 +201,27 @@ Scene parseSceneFile(const std::string &filename,
     }
 
     return scene;
+}
+
+Direction3 Triangle::get_normal_at_point(const Point3 &p) const
+{
+    if (flat) return n1;
+
+    vec3 e0 = v2 - v1;
+    vec3 e1 = v3 - v1;
+    vec3 vp = p  - v1;
+
+    float d00 = dot(e0, e0);
+    float d01 = dot(e0, e1);
+    float d11 = dot(e1, e1);
+    float d20 = dot(vp, e0);
+    float d21 = dot(vp, e1);
+
+    float denom = d00 * d11 - d01 * d01;
+    float b2 = (d11 * d20 - d01 * d21) / denom;
+    float b3 = (d00 * d21 - d01 * d20) / denom;
+    float b1 = 1.0f - b2 - b3;
+
+    vec3 n = normalize3(b1 * n1 + b2 * n2 + b3 * n3);
+    return Direction3(n);
 }

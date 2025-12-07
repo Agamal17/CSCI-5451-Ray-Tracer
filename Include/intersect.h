@@ -34,19 +34,5 @@ bool intersectSphere(const Sphere &s,
                      float t_max,
                      float &t_hit);
 
-// Ray-Triangle Normal
-vec3 triangleNormal(const vec3 &v0,
-                    const vec3 &v1,
-                    const vec3 &v2);
-
 // Ray-triangle intersection
-bool intersectTriangle(const vec3 &v0,
-                       const vec3 &v1,
-                       const vec3 &v2,
-                       const Ray  &ray,
-                       float t_min,
-                       float t_max,
-                       float &t_hit,
-                       float &b0,
-                       float &b1,
-                       float &b2);
+double rayTriangleIntersect(const Ray &ray, const Triangle &triangle);

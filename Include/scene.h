@@ -14,22 +14,29 @@ struct Material {
     float  ior;       // index of refraction
 };
 
+struct Primitive {
+    virtual Direction3 get_normal_at_point(const Point3 &p) const = 0;
+};
+
 // ----------------- Sphere -----------------
-struct Sphere {
+struct Sphere : public Primitive {
     Point3    center;
     float     radius;
     int       material_id;   // index into Scene::materials
 
     // normal at a point on the surface
-    Direction3 get_normal_at_point(const Point3 &p) const;
+    Direction3 get_normal_at_point(const Point3 &p) const override;
 };
 
 // ----------------- Triangle -----------------
-struct Triangle {
-    int v[3];   // indices into Scene::vertices
-    int n[3];   // indices into Scene::normals (or -1 if none)
-    int  material_id;
-    bool has_vertex_normals;
+struct Triangle : public Primitive {
+    Point3 v1, v2, v3;
+    Direction3 n1, n2, n3;
+    Direction3 triPlane;
+    bool flat = true;  // true -> flat triangle else false
+    int material_id;
+
+    Direction3 get_normal_at_point(const Point3 &p) const override;
 };
 
 // ----------------- Scene -----------------
