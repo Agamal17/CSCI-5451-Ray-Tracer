@@ -3,7 +3,7 @@
 #endif
 #include <cmath>
 
-#include "camera.h"
+#include "Include/camera.h"
 
 
 // Small helper functions local to this translation unit

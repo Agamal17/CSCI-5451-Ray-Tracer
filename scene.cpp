@@ -1,5 +1,5 @@
-#include "scene.h"
-#include "intersect.h"
+#include "Include/scene.h"
+#include "Include/intersect.h"
 
 #include <fstream>
 #include <sstream>

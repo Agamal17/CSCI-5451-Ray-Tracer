@@ -91,7 +91,7 @@ inline vec3 reflect(const vec3 v, const vec3 n) {
 //    r_parallel = -sqrt(1 - |r_perp|^2) * n
 // ----------------------------------------------------------
 inline vec3 refract(const vec3 uv, const vec3 n, float etai_over_etat) {
-    float cos_theta = fmin(dot(-uv, n), 1.0f);
+    float cos_theta = fmin(dot(-1 * uv, n), 1.0f);
 
     vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
 
