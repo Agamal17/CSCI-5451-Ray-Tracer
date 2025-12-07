@@ -1,53 +1,60 @@
 #pragma once
 
-#include "vec3.h"
 #include <vector>
 #include <string>
+#include "types.h"
 
+// ----------------- Material -----------------
 struct Material {
-    vec3 ambient;   // ar, ag, ab
-    vec3 diffuse;   // dr, dg, db
-    vec3 specular;  // sr, sg, sb
-    float ns;       // Phong exponent
-    vec3 trans;     // tr, tg, tb
-    float ior;      // index of refraction
+    Color3 ambient;   // ar, ag, ab
+    Color3 diffuse;   // dr, dg, db
+    Color3 specular;  // sr, sg, sb
+    float  ns;        // phong exponent
+    Color3 trans;     // tr, tg, tb
+    float  ior;       // index of refraction
 };
 
+// ----------------- Sphere -----------------
 struct Sphere {
-    vec3 center;
-    float radius;
-    int  material_id;   // index into Scene::materials
+    Point3    center;
+    float     radius;
+    int       material_id;   // index into Scene::materials
+
+    // normal at a point on the surface
+    Direction3 get_normal_at_point(const Point3 &p) const;
 };
 
+// ----------------- Triangle -----------------
 struct Triangle {
-    int v[3];                // indices for vertices
-    int n[3];                // indices for normals
-    int material_id;         // index for materials
+    int v[3];   // indices into Scene::vertices
+    int n[3];   // indices into Scene::normals (or -1 if none)
+    int  material_id;
     bool has_vertex_normals;
 };
 
+// ----------------- Scene -----------------
 struct Scene {
-    // Camera parameters
-    vec3  camera_pos;
-    vec3  camera_fwd;
-    vec3  camera_up;
-    float camera_fov_ha;
+    // camera
+    Point3     camera_pos;
+    Direction3 camera_fwd;
+    Direction3 camera_up;
+    float      camera_fov_ha;
 
-    // Global settings
-    vec3 background;
-    vec3 ambient_light;
+    // global settings
+    Color3 background;
+    Color3 ambient_light;
 
-    // Geometry and materials
+    // materials & primitives
     std::vector<Material> materials;
     std::vector<Sphere>   spheres;
 
-    // Triangle mesh data
-    std::vector<vec3>     vertices;
-    std::vector<vec3>     normals;
-    std::vector<Triangle> triangles;
+    // triangle data
+    std::vector<Point3>     vertices;  // positions
+    std::vector<Direction3> normals;   // per-vertex normals
+    std::vector<Triangle>   triangles;
 };
 
-// Parses the scene file, fills a Scene, and also sets output image size & name.
+// parse scene file and fill scene + output image info
 Scene parseSceneFile(const std::string &filename,
                      int &img_width,
                      int &img_height,

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "vec3.h"
+#include "types.h"
 
 struct Ray {
-    vec3 origin;
-    vec3 dir;
+    Point3     origin;
+    Direction3 dir;
 };
+
