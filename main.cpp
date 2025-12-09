@@ -119,7 +119,9 @@ Color rayTrace(const Ray &ray, int max_depth, Scene& scene) {
     bool b_hit = false;
     HitInfo hit;
 
-    b_hit = FindIntersection(ray, hit);
+    // CHANGED: Pass 'scene' to FindIntersection
+    b_hit = FindIntersection(scene, ray, hit);
+    
     if (b_hit) {
         return ApplyLighting(scene, ray, hit, max_depth);
     }
@@ -160,3 +162,4 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
