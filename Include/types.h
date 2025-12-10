@@ -1,12 +1,12 @@
 #pragma once
-
 #include "vec3.h"
+#include "Image/image_lib.h"
 
 // A 3D point in space
 struct Point3 : public vec3 {
-    using vec3::vec3;         
+    using vec3::vec3;
     Point3() = default;
-    Point3(const vec3& v) : vec3(v) {}  
+    Point3(const vec3& v) : vec3(v) {}
 };
 
 // A 3D direction (or normal)
