@@ -85,25 +85,24 @@ inline vec3 reflect(const vec3 v, const vec3 n) {
 }
 
 // ----------------------------------------------------------
-// Refraction
-// Based on:
-//    r_perp    = η (uv + cosθ * n)
-//    r_parallel = -sqrt(1 - |r_perp|^2) * n
+// Refraction (Snell's Law)
 // ----------------------------------------------------------
 inline vec3 refract(const vec3 uv, const vec3 n, float etai_over_etat) {
-    float cos_theta = fmin(dot(-uv, n), 1.0f);
+    // uv: incident unit vector, n: unit normal, etai_over_etat: eta_i / eta_t
+    float cos_theta = fmin(dot(-uv, n), 1.0f); 
+    
+    // Check for Total Internal Reflection (TIR)
+    float sin_theta_squared = 1.0f - cos_theta * cos_theta;
+    float discriminant = 1.0f - etai_over_etat * etai_over_etat * sin_theta_squared;
+    
+    if (discriminant < 0) {
+        return vec3(0, 0, 0); // Signal TIR
+    }
 
-    vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
-
-    float k = 1.0f - length_squared(r_out_perp);
-
-    // If k < 0, total internal reflection is happening; 
-    // calling code should check for that if needed.
-    float parallel_mag = -sqrt(fmax(k, 0.0f));
-
-    vec3 r_out_parallel = parallel_mag * n;
-
-    return r_out_perp + r_out_parallel;
+    vec3 r_perp = etai_over_etat * (uv + cos_theta * n);
+    vec3 r_parallel = -sqrt(discriminant) * n;
+    
+    return r_perp + r_parallel;
 }
 
 #endif
