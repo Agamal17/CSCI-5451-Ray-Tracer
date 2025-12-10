@@ -12,7 +12,7 @@ Color rayTrace(const Ray &ray, const int max_depth, const Scene& scene) {
     bool b_hit = false;
     HitInfo hit;
 
-    b_hit = FindIntersection(ray, hit);
+    b_hit = FindIntersection(scene, ray, hit);
     if (b_hit) {
         return ApplyLighting(scene, ray, hit, max_depth);
     }

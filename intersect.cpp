@@ -65,22 +65,22 @@ bool FindIntersection(const Scene &scene, const Ray &ray, HitInfo &hit) {
     for (const auto& sphere : scene.spheres) {
         float t_hit_sphere;
         // Pass closest_t as t_max to automatically prune further intersections
-        if (intersectSphere(sphere, ray, t_min, closest_t, t_hit_sphere)) {
+        if (intersectSphere(*sphere, ray, t_min, closest_t, t_hit_sphere)) {
             closest_t = t_hit_sphere;
-            closest_prim = &sphere;
+            closest_prim = sphere;
         }
     }
 
     // 2. Check Triangles
     for (const auto& tri : scene.triangles) {
-        double t_d = rayTriangleIntersect(ray, tri);
-        
+        double t_d = rayTriangleIntersect(ray, *tri);
+
         // rayTriangleIntersect returns infinity on miss
         if (t_d != std::numeric_limits<double>::infinity()) {
             float t_f = (float)t_d;
             if (t_f > t_min && t_f < closest_t) {
                 closest_t = t_f;
-                closest_prim = &tri;
+                closest_prim = tri;
             }
         }
     }
@@ -89,17 +89,16 @@ bool FindIntersection(const Scene &scene, const Ray &ray, HitInfo &hit) {
     if (closest_prim != nullptr) {
         hit.distance = closest_t;
         hit.point = ray.origin + ray.dir * closest_t;
-        
+
         // Polymorphic call to get normal (works for Sphere or Triangle)
         hit.normal = closest_prim->get_normal_at_point(hit.point);
-        
+
         // Retrieve material
-        int matID = closest_prim->getMaterialID();
-        if (matID >= 0 && matID < (int)scene.materials.size()) {
-            hit.material = scene.materials[matID];
-        }
+        hit.material = closest_prim->getMaterial();
+
         return true;
     }
 
     return false;
 }
+
