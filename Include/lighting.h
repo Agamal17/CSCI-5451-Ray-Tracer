@@ -36,6 +36,6 @@ struct SpotLight: public Light{
 };
 
 Color ApplyLighting(const Scene& scene,
-                    const Ray &ray,
+                    Ray &ray,
                     HitInfo &hit,
                     int depth);

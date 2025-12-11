@@ -93,6 +93,8 @@ bool FindIntersection(const Scene &scene, const Ray &ray, HitInfo &hit) {
         // Polymorphic call to get normal (works for Sphere or Triangle)
         hit.normal = closest_prim->get_normal_at_point(hit.point);
 
+        if (dot(hit.normal, ray.dir) > 0) hit.normal = -1 * hit.normal; // to ensure normal is opposite to viewing ray
+
         // Retrieve material
         hit.material = closest_prim->getMaterial();
 

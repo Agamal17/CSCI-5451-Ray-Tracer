@@ -3,7 +3,7 @@
 #include "Include/rayTrace.h"
 #include <cmath>
 
-Color rayTrace(const Ray &ray, const int max_depth, const Scene& scene) {
+Color rayTrace(Ray &ray, const int max_depth, const Scene& scene) {
     // Base Case: Stop the recursion if max depth is reached
     if (max_depth <= 0) {
         return Color(0, 0, 0);
@@ -20,7 +20,7 @@ Color rayTrace(const Ray &ray, const int max_depth, const Scene& scene) {
     return scene.background;
 }
 
-Ray Reflect(const Ray &ray, const HitInfo& hit){
+Ray Reflect(Ray &ray, HitInfo& hit){
     vec3 d = ray.dir.normalized();
     vec3 n = hit.normal.normalized();
 
@@ -29,11 +29,11 @@ Ray Reflect(const Ray &ray, const HitInfo& hit){
     return Ray(hit.point + reflected_dir * 0.001f, reflected_dir.normalized());
 }
 
-Ray Refract(const Ray &ray, const HitInfo& hit){
+Ray Refract(Ray &ray, HitInfo& hit){
     vec3 I = ray.dir.normalized();
     vec3 N = hit.normal.normalized();
 
-    float ior = hit.material.ior;
+    float ior = hit.material->ior;
     float cos_theta = dot(I, N);
     float eta;
     vec3 n_eff;

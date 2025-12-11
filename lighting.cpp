@@ -69,7 +69,7 @@ Color SpotLight::getContribution(const Scene& scene, const Ray& ray, HitInfo& hi
 }
 
 Color ApplyLighting(const Scene& scene,
-                    const Ray &ray,
+                    Ray &ray,
                     HitInfo &hit,
                     int depth) {
     Color color = hit.material->ambient * scene.ambient_light;
@@ -78,9 +78,9 @@ Color ApplyLighting(const Scene& scene,
         color = color + light->getContribution(scene, ray, hit);
     }
 
-    // Ray refraction = Refract(ray, hit);
-    // color = color + hit.material->trans * rayTrace(refraction, depth - 1, scene);
-    // Ray reflection = Reflect(ray, hit);
-    // color = color + hit.material->specular * rayTrace(reflection, depth - 1, scene);
+    Ray refraction = Refract(ray, hit);
+    color = color + hit.material->trans * rayTrace(refraction, depth - 1, scene);
+    Ray reflection = Reflect(ray, hit);
+    color = color + hit.material->specular * rayTrace(reflection, depth - 1, scene);
     return color;
 }
