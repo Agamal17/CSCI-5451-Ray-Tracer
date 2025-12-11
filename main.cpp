@@ -15,7 +15,6 @@
 #include <string>
 #include <omp.h>
 
-
 int main(int argc, char** argv) {
     // Read command line parameters to get scene file
     if (argc < 2) {

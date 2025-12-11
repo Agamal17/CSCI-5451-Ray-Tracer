@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 using std::sqrt;
 using std::fmin;
@@ -73,4 +74,9 @@ inline vec3 operator*(const vec3& a, float f) {
 // Element-wise (Hadamard) multiplication
 inline vec3 operator*(const vec3& a, const vec3& b) {
     return vec3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const vec3& v) {
+  os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+  return os;
 }
