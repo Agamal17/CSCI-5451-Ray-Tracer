@@ -82,5 +82,6 @@ Color ApplyLighting(const Scene& scene,
     color = color + hit.material->trans * rayTrace(refraction, depth - 1, scene);
     Ray reflection = Reflect(ray, hit);
     color = color + hit.material->specular * rayTrace(reflection, depth - 1, scene);
+
     return color;
 }

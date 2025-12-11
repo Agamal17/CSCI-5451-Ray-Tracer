@@ -33,6 +33,8 @@ Scene parseSceneFile(const std::string &filename,
 
     scene.background    = Color(0, 0, 0);
     scene.ambient_light = Color(0, 0, 0);
+    scene.max_depth = 5;
+
 
     // Default image parameters
     img_width  = 640;
