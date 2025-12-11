@@ -43,11 +43,27 @@ int main(int argc, char** argv) {
             float v = halfH - j + 0.5;
             Point3 p = scene.camera_pos - d * scene.camera_fwd + u * scene.camera_right + v * scene.camera_up;
             Ray ray(scene.camera_pos, p - scene.camera_pos);
-            Color result =  rayTrace(ray, scene.max_depth, scene);
+            Color result = rayTrace(ray, scene.max_depth, scene);
             outputImg.getPixel(i, j) = result;
         }
     }
 
     outputImg.write(imgName.c_str());
+
+    // Free heap allocations
+    for (Sphere* s : scene.spheres) {
+        delete s;
+    }
+    for (Triangle* t : scene.triangles) {
+        delete t;
+    }
+    for (Material* m : scene.materials) {
+        delete m;
+    }
+    for (Light* l: scene.lights){
+        delete l;
+    }
+
+
     return 0;
 }

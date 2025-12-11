@@ -48,6 +48,8 @@ Scene parseSceneFile(const std::string &filename,
     material->trans    = Color(0, 0, 0);
     material->ior      = 1.0f;
 
+    scene.materials.push_back(material);
+
     int max_vertices = 0;
     int max_normals  = 0;
 
@@ -105,6 +107,8 @@ Scene parseSceneFile(const std::string &filename,
                >> material->ns
                >> material->trans.r >> material->trans.g >> material->trans.b
                >> material->ior;
+
+            scene.materials.push_back(material);
 
         } else if (key == "sphere") {
             float x, y, z, r;

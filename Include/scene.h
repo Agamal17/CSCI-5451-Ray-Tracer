@@ -25,6 +25,8 @@ struct Scene {
     std::vector<Sphere*>   spheres;
     std::vector<Triangle*>   triangles;
 
+    std::vector<Material*>   materials;
+
     // triangle data
     std::vector<Point3>     vertices;  // positions
     std::vector<Direction3> normals;   // per-vertex normals

@@ -9,6 +9,7 @@ struct Light {
 
     Light(Color color): color(color) {}
     virtual Color getContribution(const Scene& scene, const Ray& ray, HitInfo& hit)  = 0;
+    virtual ~Light() = default;
 };
 
 struct DirectionalLight: public Light{
