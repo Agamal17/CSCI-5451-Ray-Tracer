@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 #include <omp.h>
+#include <chrono>
+#include <iomanip>
 
 int main(int argc, char** argv) {
     // Read command line parameters to get scene file
@@ -21,6 +23,8 @@ int main(int argc, char** argv) {
         std::cout << "Usage: ./a.out scenefile\n";
         return 0;
     }
+
+    auto t_total_start = std::chrono::steady_clock::now();
 
     std::string sceneFileName = argv[1];
     int img_width, img_height;
@@ -63,6 +67,11 @@ int main(int argc, char** argv) {
         delete l;
     }
 
+    auto t_total_end = std::chrono::steady_clock::now();
+    auto total_ms = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+
+    std::cout << std::fixed << std::setprecision(3);
+    std::cout << "\n[TIMING] total: " << total_ms << " ms\n\n";
 
     return 0;
 }
