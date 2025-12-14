@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     // Check command-line arguments (only rank 0 prints the message)
     if (argc < 2) {
         if (world_rank == 0) {
-            std::cout << "Usage: mpirun -np <procs> raytracer <scenefile>\n";
+            std::cout << "Usage: mpirun -np <procs> ray_mpi <scenefile>\n";
         }
         MPI_Finalize();
         return 0;
@@ -94,9 +94,10 @@ int main(int argc, char** argv) {
             Color result = rayTrace(ray, scene.max_depth, scene);
 
             int idx = (lr * img_width + i) * 3;
-            local_pixels[idx + 0] = result.x;
-            local_pixels[idx + 1] = result.y;
-            local_pixels[idx + 2] = result.z;
+            // Color uses r,g,b (double); we store as float for MPI
+            local_pixels[idx + 0] = static_cast<float>(result.r);
+            local_pixels[idx + 1] = static_cast<float>(result.g);
+            local_pixels[idx + 2] = static_cast<float>(result.b);
 
             // Move to next pixel in the row
             p = p + step_x;
@@ -140,9 +141,9 @@ int main(int argc, char** argv) {
             for (int i = 0; i < img_width; ++i) {
                 int idx = (j * img_width + i) * 3;
                 Color &pixel = outputImg.getPixel(i, j);
-                pixel.x = all_pixels[idx + 0];
-                pixel.y = all_pixels[idx + 1];
-                pixel.z = all_pixels[idx + 2];
+                pixel.r = all_pixels[idx + 0];
+                pixel.g = all_pixels[idx + 1];
+                pixel.b = all_pixels[idx + 2];
             }
         }
 
