@@ -21,6 +21,12 @@ struct Color{
   Color operator*(const Color& c) const { return Color(r*c.r, g*c.g, b*c.b); }
   Color operator*(double s) const { return Color(r*s, g*s, b*s); }
   Color operator/(double s) const { return Color(r/s, g/s, b/s); }
+  Color& operator+=(const Color& c) {
+    r += c.r; // Mutate the member variables
+    g += c.g;
+    b += c.b;
+    return *this; // Return a reference to the modified object
+  }
 
 };
 
