@@ -13,7 +13,8 @@
 #include "Include/scene.h"
 #include <iostream>
 #include <string>
-#include <omp.h>
+#include <chrono>
+#include <iomanip>
 
 int main(int argc, char** argv) {
     // Read command line parameters to get scene file
