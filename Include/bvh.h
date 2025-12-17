@@ -1,5 +1,5 @@
 #pragma once
-#include "vec3.h"
+#include "vec3.cuh"
 #include <algorithm>
 #include <cuda_runtime.h>
 
@@ -7,26 +7,37 @@ struct AABB {
     Point3 min;
     Point3 max;
 
-    __host__ __device__ AABB() : min(1e30, 1e30, 1e30), max(-1e30, -1e30, -1e30) {}
-    __host__ __device__ AABB(const Point3& min, const Point3& max) : min(min), max(max) {}
+    __host__ __device__ AABB() 
+        : min(1e30f, 1e30f, 1e30f), max(-1e30f, -1e30f, -1e30f) {}
+
+    __host__ __device__ AABB(const Point3& min, const Point3& max) 
+        : min(min), max(max) {}
 
     __host__ __device__ void expand(const Point3& p) {
-        min = Point3(fmin(min.x, p.x), fmin(min.y, p.y), fmin(min.z, p.z));
-        max = Point3(fmax(max.x, p.x), fmax(max.y, p.y), fmax(max.z, p.z));
+        min.x = fminf(min.x, p.x);
+        min.y = fminf(min.y, p.y);
+        min.z = fminf(min.z, p.z);
+        max.x = fmaxf(max.x, p.x);
+        max.y = fmaxf(max.y, p.y);
+        max.z = fmaxf(max.z, p.z);
     }
 
     __host__ __device__ void expand(const AABB& box) {
-        min = Point3(fmin(min.x, box.min.x), fmin(min.y, box.min.y), fmin(min.z, box.min.z));
-        max = Point3(fmax(max.x, box.max.x), fmax(max.y, box.max.y), fmax(max.z, box.max.z));
+        min.x = fminf(min.x, box.min.x);
+        min.y = fminf(min.y, box.min.y);
+        min.z = fminf(min.z, box.min.z);
+        max.x = fmaxf(max.x, box.max.x);
+        max.y = fmaxf(max.y, box.max.y);
+        max.z = fmaxf(max.z, box.max.z);
     }
-    
+
     __host__ __device__ Point3 centroid() const {
-        return min + (max - min) * 0.5;
+        return (min + max) * 0.5f;
     }
 };
 
 struct BVHNode {
     AABB bounds;
-    int leftFirst;  // If leaf: index into primitive array. If internal: index of left child.
-    int count;      // If leaf: number of primitives. If internal: 0.
+    int leftFirst;  // Internal: Index of left child. Leaf: Index into primitive array.
+    int count;      // Internal: 0. Leaf: Number of primitives.
 };
