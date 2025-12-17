@@ -51,8 +51,30 @@ int main(int argc, char** argv) {
         (img_height + threads_per_block.y - 1) / threads_per_block.y
     );
 
-    // Launch the kernel with the Device pointers
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    // Record the start event
+    cudaEventRecord(start);
+
+    // Launch the kernel
     rayTraceKernel<<<num_blocks, threads_per_block>>>(d_output_img, img_width, img_height, d_scene);
+
+    // Record the stop event
+    cudaEventRecord(stop);
+
+    // Wait for the stop event to actually finish
+    cudaEventSynchronize(stop);
+
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+
+    std::cout << "[Timing][CUDA] total: " << milliseconds << " ms\n\n" << std::endl;
+
+    // Clean up events
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     // Synchronize and check for errors that occurred inside the kernel
     checkCuda(cudaDeviceSynchronize(), "Kernel Execution and Synchronization");
