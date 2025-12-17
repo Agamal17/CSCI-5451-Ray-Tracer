@@ -69,9 +69,9 @@ __device__ Ray Refract(const DeviceScene* scene, Ray ray, HitInfo hit){
     Direction3 I = ray.dir.normalized();
     Direction3 N = hit.normal.normalized();
 
-    double ior = scene->d_materials[hit.material_index].ior;
-    double cos_theta = dot(I, N);
-    double eta;
+    float ior = scene->d_materials[hit.material_index].ior;
+    float cos_theta = dot(I, N);
+    float eta;
     Direction3 n_eff;
 
     if (cos_theta > 0) {
@@ -83,7 +83,7 @@ __device__ Ray Refract(const DeviceScene* scene, Ray ray, HitInfo hit){
         cos_theta = -cos_theta;
     }
 
-    double k = 1.0 - eta * eta * (1.0 - cos_theta * cos_theta);
+    float k = 1.0 - eta * eta * (1.0 - cos_theta * cos_theta);
 
     if (k < 0) {
         return Reflect(ray, hit); 

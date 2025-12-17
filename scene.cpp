@@ -117,7 +117,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
             current_material_index = h_temp.h_materials.size() - 1; // Update active material index
 
         } else if (key == "sphere") {
-            double x, y, z, r;
+            float x, y, z, r;
             ss >> x >> y >> z >> r;
             Sphere s;
             s.center      = Point3(x, y, z);
@@ -134,14 +134,14 @@ DeviceScene* parseSceneFile(const std::string &filename,
             if (max_normals < 0) max_normals = 0;
             h_temp.h_normals.reserve(max_normals);
         } else if (key == "vertex") {
-            double x, y, z;
+            float x, y, z;
             ss >> x >> y >> z;
             if (max_vertices > 0 && (int)h_temp.h_vertices.size() >= max_vertices) {
                 std::cerr << "Warning: more vertices than max_vertices in " << filename << std::endl;
             }
             h_temp.h_vertices.push_back(Point3(x, y, z));
         } else if (key == "normal") {
-            double x, y, z;
+            float x, y, z;
             ss >> x >> y >> z;
             if (max_normals > 0 && (int)h_temp.h_normals.size() >= max_normals) {
                 std::cerr << "Warning: more normals than max_normals in " << filename << std::endl;
@@ -201,7 +201,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
             }
 
         } else if (key == "directional_light") {
-            double r, g, b, x, y, z;
+            float r, g, b, x, y, z;
             ss >> r >> g >> b >> x >> y >> z;
             // Host side code during parsing:
             DeviceLight new_light;
@@ -211,7 +211,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
 
             h_temp.h_lights.push_back(new_light);
         } else if (key == "point_light") {
-            double r, g, b, x, y, z;
+            float r, g, b, x, y, z;
             ss >> r >> g >> b >> x >> y >> z;
             DeviceLight new_light;
             new_light.type = POINT_LIGHT;
@@ -220,7 +220,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
 
             h_temp.h_lights.push_back(new_light);
         } else if (key == "spot_light") {
-            double r, g, b, x, y, z, dir_x, dir_y, dir_z, angle1, angle2;
+            float r, g, b, x, y, z, dir_x, dir_y, dir_z, angle1, angle2;
             ss >> r >> g >> b >> x >> y >> z >> dir_x >> dir_y >> dir_z >> angle1 >> angle2;
 
             DeviceLight new_light;

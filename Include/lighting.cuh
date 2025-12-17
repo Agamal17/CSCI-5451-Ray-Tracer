@@ -26,8 +26,8 @@ struct DeviceLight {
 
     // Spot Light Data
     Direction3 spot_direction; // Only valid if type == SPOT_LIGHT
-    double angle1;             // Only valid if type == SPOT_LIGHT
-    double angle2;             // Only valid if type == SPOT_LIGHT
+    float angle1;             // Only valid if type == SPOT_LIGHT
+    float angle2;             // Only valid if type == SPOT_LIGHT
 };
 
 // --- DEVICE FUNCTIONS (Called from Kernel) ---

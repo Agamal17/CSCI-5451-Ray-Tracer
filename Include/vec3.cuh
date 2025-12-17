@@ -7,11 +7,11 @@
 // Removed "using std::..." to avoid conflicts with CUDA math functions on device
 
 // Small vector library
-// Represents a vector as 3 doubles
+// Represents a vector as 3 floats
 struct vec3 {
-    double x, y, z;
+    float x, y, z;
 
-    __host__ __device__ vec3(double x, double y, double z) : x(x), y(y), z(z) {}
+    __host__ __device__ vec3(float x, float y, float z) : x(x), y(y), z(z) {}
     __host__ __device__ vec3() : x(0), y(0), z(0) {}
 
     __host__ __device__ vec3 operator-() const {
@@ -25,26 +25,26 @@ struct vec3 {
     }
 
     // Compute vector length
-    __host__ __device__ double length() {
+    __host__ __device__ float length() {
         return sqrt(x * x + y * y + z * z);
     }
 
     // Create a unit-length vector
     __host__ __device__ vec3 normalized() const {
-        double len = sqrt(x * x + y * y + z * z);
+        float len = sqrt(x * x + y * y + z * z);
         // Avoid division by zero if necessary, though original code didn't check
         if (len == 0.0) return vec3(0, 0, 0);
         return vec3(x / len, y / len, z / len);
     }
 };
 
-// Multiply double and vector
-__host__ __device__ inline vec3 operator*(double f, vec3 a) {
+// Multiply float and vector
+__host__ __device__ inline vec3 operator*(float f, vec3 a) {
     return vec3(a.x * f, a.y * f, a.z * f);
 }
 
 // Vector-vector dot product
-__host__ __device__ inline double dot(vec3 a, vec3 b) {
+__host__ __device__ inline float dot(vec3 a, vec3 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
@@ -64,12 +64,12 @@ __host__ __device__ inline vec3 operator-(vec3 a, vec3 b) {
 }
 
 // Useful for optimization (avoids expensive sqrt)
-__host__ __device__ inline double length_squared(const vec3 v) {
+__host__ __device__ inline float length_squared(const vec3 v) {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
-// Allow vec * double
-__host__ __device__ inline vec3 operator*(const vec3& a, double f) {
+// Allow vec * float
+__host__ __device__ inline vec3 operator*(const vec3& a, float f) {
     return vec3(a.x * f, a.y * f, a.z * f);
 }
 

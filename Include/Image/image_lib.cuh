@@ -11,16 +11,16 @@
 #include <stdint.h> //for uint8_t
 
 struct Color{
-  double r,g,b;
+  float r,g,b;
 
-  __device__ __host__ Color(double r, double g, double b) : r(r), g(g), b(b) {}
+  __device__ __host__ Color(float r, float g, float b) : r(r), g(g), b(b) {}
   __device__ __host__ Color() : r(0), g(0), b(0) {}
 
   __device__ __host__ Color operator+(const Color c) const { return Color(r+c.r, g+c.g, b+c.b); }
   __device__ __host__ Color operator-(const Color c) const { return Color(r-c.r, g-c.g, b-c.b); }
   __device__ __host__ Color operator*(const Color c) const { return Color(r*c.r, g*c.g, b*c.b); }
-  __device__ __host__ Color operator*(double s) const { return Color(r*s, g*s, b*s); }
-  __device__ __host__ Color operator/(double s) const { return Color(r/s, g/s, b/s); }
+  __device__ __host__ Color operator*(float s) const { return Color(r*s, g*s, b*s); }
+  __device__ __host__ Color operator/(float s) const { return Color(r/s, g/s, b/s); }
   __device__ __host__ Color& operator+=(const Color c) {
     r += c.r; // Mutate the member variables
     g += c.g;

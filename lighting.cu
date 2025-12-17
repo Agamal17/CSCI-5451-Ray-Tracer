@@ -3,7 +3,7 @@
 #include "Include/lighting.cuh"
 #include "Include/intersect.cuh" // Assuming FindIntersection is now __device__
 
-static constexpr double EPS = 1e-4;
+static constexpr float EPS = 1e-4;
 
 // --- Combined Device Contribution Function (The New Core Logic) ---
 
@@ -18,12 +18,12 @@ __device__ Color calculateContribution(
 
     // Diffuse (Lambertian)
     // Use fmax/fmin or c++ std::max/std::min depending on your NVCC setup
-    double NdotL = max(0.0, dot(N, L));
+    float NdotL = max(0.0, dot(N, L));
     final_color += material.diffuse * attenuated_color * NdotL;
 
     // Specular (Blinn–Phong)
     Direction3 H = (V + L).normalized();
-    double NdotH = max(0.0, dot(N, H));
+    float NdotH = max(0.0, dot(N, H));
     final_color += material.specular * attenuated_color *
                    pow(NdotH, material.ns);
 
@@ -63,7 +63,7 @@ __device__ Color getLightContribution(
         case POINT_LIGHT: {
             // *** FIX: Use light.position_data instead of light.point.position ***
             Direction3 toLight = light.position_data - p;
-            double light_distance = toLight.length();
+            float light_distance = toLight.length();
             Direction3 L = toLight.normalized();    // surface → light
 
             Ray shadowRay(p, L);
@@ -82,7 +82,7 @@ __device__ Color getLightContribution(
         case SPOT_LIGHT: {
             // *** FIX: Use light.position_data instead of light.spot.position ***
             Direction3 toLight = light.position_data - p;
-            double light_distance = toLight.length();
+            float light_distance = toLight.length();
             Direction3 L = toLight.normalized();
 
             Ray shadowRay(p, L);
@@ -97,17 +97,17 @@ __device__ Color getLightContribution(
             // *** FIX: Use light.spot_direction, light.angle1, light.angle2 ***
             Direction3 spotDir = light.spot_direction.normalized();
 
-            double cosHitAngle = dot((-toLight).normalized(), spotDir);
+            float cosHitAngle = dot((-toLight).normalized(), spotDir);
             // Use fmax/fmin or std::max/std::min depending on your NVCC setup
-            double hitAngle = acos(cosHitAngle) * 180.0 / M_PI;
+            float hitAngle = acos(cosHitAngle) * 180.0 / M_PI;
 
             if (hitAngle > light.angle2) {
                 break; // Outside outer cone
             }
 
-            double falloff = 1.0;
+            float falloff = 1.0;
             if (hitAngle > light.angle1) {
-                double t = (hitAngle - light.angle1) / (light.angle2 - light.angle1);
+                float t = (hitAngle - light.angle1) / (light.angle2 - light.angle1);
                 falloff = max(0.0, 1.0 - t);
             }
 

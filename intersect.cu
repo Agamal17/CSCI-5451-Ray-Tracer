@@ -2,25 +2,25 @@
 #include <cmath>
 #include <cfloat>
 
-static constexpr double T_MIN = 0.0001; // Epsilon
+static constexpr float T_MIN = 0.0001; // Epsilon
 
-__device__ double intersectSphere(const Ray ray, const Sphere s) {
-    const double INF = INFINITY;
+__device__ float intersectSphere(const Ray ray, const Sphere s) {
+    const float INF = INFINITY;
     
     Direction3 oc = ray.origin - s.center;
-    double a = dot(ray.dir, ray.dir);
-    double b = 2.0 * dot(oc, ray.dir);
-    double c = dot(oc, oc) - s.radius * s.radius;
-    double disc = b*b - 4.0*a*c;
+    float a = dot(ray.dir, ray.dir);
+    float b = 2.0 * dot(oc, ray.dir);
+    float c = dot(oc, oc) - s.radius * s.radius;
+    float disc = b*b - 4.0*a*c;
     
     if (disc < 0.0) return INF;
 
-    double sqrtD = std::sqrt(disc);
-    double t0 = (-b - sqrtD) / (2.0 * a);
-    double t1 = (-b + sqrtD) / (2.0 * a);
+    float sqrtD = std::sqrt(disc);
+    float t0 = (-b - sqrtD) / (2.0 * a);
+    float t1 = (-b + sqrtD) / (2.0 * a);
 
 
-    double t = t0;
+    float t = t0;
     if (t < 1e-4) {
         t = t1;
         if (t < 1e-4) return INF;
@@ -29,15 +29,15 @@ __device__ double intersectSphere(const Ray ray, const Sphere s) {
     return t;
 }
 
-__device__ double rayTriangleIntersect(const Ray ray, const Triangle triangle)
+__device__ float rayTriangleIntersect(const Ray ray, const Triangle triangle)
 {
-    const double INF = INFINITY;
+    const float INF = INFINITY;
 
     Direction3 n = triangle.triPlane;
-    double denom = dot(n, ray.dir);
+    float denom = dot(n, ray.dir);
     if (std::abs(denom) < 1e-7) return INF;
 
-    double t = dot(n, triangle.v1 - ray.origin) / denom;
+    float t = dot(n, triangle.v1 - ray.origin) / denom;
     if (t < 1e-4) return INF;
 
     Point3 hitPoint = ray.origin + ray.dir * t;
@@ -46,9 +46,9 @@ __device__ double rayTriangleIntersect(const Ray ray, const Triangle triangle)
     Direction3 c2 = cross(triangle.v3 - triangle.v2, hitPoint - triangle.v2);
     Direction3 c3 = cross(triangle.v1 - triangle.v3, hitPoint - triangle.v3);
 
-    double d1 = dot(c1, n);
-    double d2 = dot(c2, n);
-    double d3 = dot(c3, n);
+    float d1 = dot(c1, n);
+    float d2 = dot(c2, n);
+    float d3 = dot(c3, n);
 
     if ( (d1 >= 0 && d2 >= 0 && d3 >= 0) ||
          (d1 <= 0 && d2 <= 0 && d3 <= 0) )
@@ -69,7 +69,7 @@ __device__ bool FindIntersection(const DeviceScene* d_scene, const Ray ray, HitI
     hit->primitive_index = -1;
 
     // Temporary variables for intersection test result
-    double t_d;
+    float t_d;
 
     // --- 1. Check Spheres (C-style iteration over device array) ---
     for (int i = 0; i < d_scene->num_spheres; ++i) {

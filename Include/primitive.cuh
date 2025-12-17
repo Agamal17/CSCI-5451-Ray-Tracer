@@ -8,9 +8,9 @@ struct Material {
     Color ambient;
     Color diffuse;
     Color specular;
-    double  ns;
+    float  ns;
     Color trans;
-    double  ior;
+    float  ior;
 };
 
 // In your shared header (e.g., primitives.cuh)
@@ -23,7 +23,7 @@ enum PrimitiveType {
 
 // ----------------- HitInfo -----------------
 struct HitInfo {
-    double distance;
+    float distance;
     Point3 point;
     Direction3 normal;
     int material_index;
@@ -36,7 +36,7 @@ struct HitInfo {
 // ----------------- Sphere -----------------
 struct Sphere {
     Point3    center;
-    double    radius;
+    float    radius;
     int       material_index;
 
     __device__ Direction3 get_normal_at_point(const Point3 p) const;
