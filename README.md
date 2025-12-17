@@ -1,12 +1,12 @@
-# CSCI-5451 Ray Tracer (CUDA Implementation)
+# CSCI-5451 Ray Tracer (CUDA)
 
 This repository contains the GPU-accelerated ray tracer implementation using CUDA.
 
-## Steps to compile and test on Plate server
+## Steps to compile and test on CUDA server
 
-1. Login to Plate
+1. Login to CUDA
    ```bash
-   ssh <your-username>@csel-plate01.cselabs.umn.edu
+   ssh <your-username>@csel-cuda-04.cselabs.umn.edu
    
 2. Clone the repository
    ```bash
