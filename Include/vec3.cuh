@@ -30,7 +30,7 @@ struct vec3 {
     }
 
     // Create a unit-length vector
-    __host__ __device__ vec3 normalized() {
+    __host__ __device__ vec3 normalized() const {
         double len = sqrt(x * x + y * y + z * z);
         // Avoid division by zero if necessary, though original code didn't check
         if (len == 0.0) return vec3(0, 0, 0);
@@ -64,7 +64,7 @@ __host__ __device__ inline vec3 operator-(vec3 a, vec3 b) {
 }
 
 // Useful for optimization (avoids expensive sqrt)
-__host__ __device__ inline double length_squared(const vec3& v) {
+__host__ __device__ inline double length_squared(const vec3 v) {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
@@ -74,13 +74,13 @@ __host__ __device__ inline vec3 operator*(const vec3& a, double f) {
 }
 
 // Element-wise (Hadamard) multiplication
-__host__ __device__ inline vec3 operator*(const vec3& a, const vec3& b) {
+__host__ __device__ inline vec3 operator*(const vec3 a, const vec3 b) {
     return vec3(a.x * b.x, a.y * b.y, a.z * b.z);
 }
 
 // operator<< uses std::ostream, which is not available on the device.
 // We mark this as __host__ only.
-__host__ inline std::ostream& operator<<(std::ostream& os, const vec3& v) {
+__host__ inline std::ostream& operator<<(std::ostream& os, const vec3 v) {
     os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
     return os;
 }

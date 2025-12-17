@@ -13,20 +13,26 @@
 struct Color{
   double r,g,b;
 
-  Color(double r, double g, double b) : r(r), g(g), b(b) {}
-  Color() : r(0), g(0), b(0) {}
+  __device__ __host__ Color(double r, double g, double b) : r(r), g(g), b(b) {}
+  __device__ __host__ Color() : r(0), g(0), b(0) {}
 
-  Color operator+(const Color& c) const { return Color(r+c.r, g+c.g, b+c.b); }
-  Color operator-(const Color& c) const { return Color(r-c.r, g-c.g, b-c.b); }
-  Color operator*(const Color& c) const { return Color(r*c.r, g*c.g, b*c.b); }
-  Color operator*(double s) const { return Color(r*s, g*s, b*s); }
-  Color operator/(double s) const { return Color(r/s, g/s, b/s); }
-  Color& operator+=(const Color& c) {
+  __device__ __host__ Color operator+(const Color c) const { return Color(r+c.r, g+c.g, b+c.b); }
+  __device__ __host__ Color operator-(const Color c) const { return Color(r-c.r, g-c.g, b-c.b); }
+  __device__ __host__ Color operator*(const Color c) const { return Color(r*c.r, g*c.g, b*c.b); }
+  __device__ __host__ Color operator*(double s) const { return Color(r*s, g*s, b*s); }
+  __device__ __host__ Color operator/(double s) const { return Color(r/s, g/s, b/s); }
+  __device__ __host__ Color& operator+=(const Color c) {
     r += c.r; // Mutate the member variables
     g += c.g;
     b += c.b;
     return *this; // Return a reference to the modified object
   }
+  __host__ __device__ __forceinline__
+  float maxComponent() const {
+      return fmaxf(r, fmaxf(g, b));
+  }
+
+  __device__ __host__ float magnitude() const { return sqrt(r*r + g*g + b*b); }
 
 };
 

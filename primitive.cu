@@ -1,6 +1,6 @@
-#include "Include/primitive.h"
+#include "Include/primitive.cuh"
 
-Direction3 Triangle::get_normal_at_point(const Point3 &p) const
+__device__ Direction3 Triangle::get_normal_at_point(const Point3 p) const
 {
     if (flat) return n1;
 
@@ -22,14 +22,6 @@ Direction3 Triangle::get_normal_at_point(const Point3 &p) const
     return (b1 * n1 + b2 * n2 + b3 * n3).normalized();
 }
 
-Direction3 Sphere::get_normal_at_point(const Point3 &p) const {
+__device__ Direction3 Sphere::get_normal_at_point(const Point3 p) const {
     return (p - center).normalized();
-}
-
-Material* Sphere::getMaterial() const {
-    return material;
-}
-
-Material* Triangle::getMaterial() const {
-    return material;
 }
