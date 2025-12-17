@@ -147,8 +147,7 @@ int main(int argc, char** argv) {
         }
 
         std::cout << std::fixed << std::setprecision(3);
-        std::cout << "\n[TIMING][MPI] total (max over ranks): "
-                  << global_ms << " ms\n\n";
+        std::cout << "\n[TIMING][MPI] total: " << global_ms << " ms\n\n";
 
         outputImg.write(imgName.c_str());
     }
@@ -161,4 +160,5 @@ int main(int argc, char** argv) {
 
     MPI_Finalize();
     return 0;
+
 }
