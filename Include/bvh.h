@@ -1,5 +1,5 @@
 #pragma once
-#include "vec3.cuh"
+#include "vec3.h"
 #include <algorithm>
 #include <cuda_runtime.h>
 
