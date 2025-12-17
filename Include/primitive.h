@@ -1,6 +1,6 @@
 #pragma once
 #include <limits>
-#include <vector>
+#include <cuda_runtime.h> // For __host__ __device__
 #include "types.h"
 
 // ----------------- Material -----------------
@@ -8,9 +8,9 @@ struct Material {
     Color ambient;   // ar, ag, ab
     Color diffuse;   // dr, dg, db
     Color specular;  // sr, sg, sb
-    double  ns;        // phong exponent
+    double  ns;      // phong exponent
     Color trans;     // tr, tg, tb
-    double  ior;       // index of refraction
+    double  ior;     // index of refraction
 };
 
 struct HitInfo {
@@ -19,34 +19,34 @@ struct HitInfo {
     Direction3 normal;
     Material* material;
 
-    HitInfo() : distance(INFINITY) {}
-    HitInfo(double distance, Point3 point, Direction3 normal, Material* material) : distance(distance), point(point), normal(normal), material(material) {}
+    __host__ __device__ HitInfo() : distance(INFINITY), material(nullptr) {}
+    __host__ __device__ HitInfo(double distance, Point3 point, Direction3 normal, Material* material)
+        : distance(distance), point(point), normal(normal), material(material) {}
 };
 
-struct Primitive {
-    virtual Material* getMaterial() const = 0;
-    virtual Direction3 get_normal_at_point(const Point3 &p) const = 0;
-};
+// Note: Primitive base class removed to avoid vtables on GPU.
+// Sphere and Triangle are now standalone structs.
 
 // ----------------- Sphere -----------------
-struct Sphere : public Primitive {
+struct Sphere {
     Point3    center;
-    double     radius;
-    Material*     material;   // index into Scene::materials
+    double    radius;
+    Material* material;   // Pointer to material in Device memory
 
-    Material* getMaterial() const override;
-    // normal at a point on the surface
-    Direction3 get_normal_at_point(const Point3 &p) const override;
+    __host__ __device__ Material* getMaterial() const { return material; }
+    
+    __device__ Direction3 get_normal_at_point(const Point3 &p) const;
 };
 
 // ----------------- Triangle -----------------
-struct Triangle : public Primitive {
+struct Triangle {
     Point3 v1, v2, v3;
     Direction3 n1, n2, n3;
-    Direction3 triPlane;
-    bool flat = true;  // true -> flat triangle else false
-    Material*     material;   // index into Scene::materials
+    Direction3 triPlane; // Normal of the plane
+    bool flat = true;    // true -> flat triangle else false
+    Material* material;  // Pointer to material in Device memory
 
-    Material* getMaterial() const override;
-    Direction3 get_normal_at_point(const Point3 &p) const override;
+    __host__ __device__ Material* getMaterial() const { return material; }
+    
+    __device__ Direction3 get_normal_at_point(const Point3 &p) const;
 };
