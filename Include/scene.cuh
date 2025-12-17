@@ -4,10 +4,10 @@
 #include "types.cuh"
 #include "primitive.cuh"
 #include "lighting.cuh"
+#include "bvh.cuh" // [BVH] Added include
 
 // ----------------- Scene -----------------
 struct HostSceneTemp {
-    // This is the collection point for all dynamic data during parsing
     std::vector<DeviceLight> h_lights;
     std::vector<Sphere> h_spheres;
     std::vector<Triangle> h_triangles;
@@ -17,9 +17,9 @@ struct HostSceneTemp {
 };
 
 struct DeviceScene {
-    // CAMERA & SETTINGS (Simple data, can be passed by value)
+    // CAMERA & SETTINGS
     Point3     camera_pos;
-        Direction3 camera_fwd;
+    Direction3 camera_fwd;
     Direction3 camera_up;
     Direction3 camera_right;
     float      camera_fov_ha;
@@ -28,27 +28,32 @@ struct DeviceScene {
     Color ambient_light;
     int max_depth;
 
-    // LIGHTS (Replaced std::vector<Light*> with flat C-array pointer)
-    DeviceLight* d_lights;         // Pointer to the array of Light structures on the DEVICE
-    int    num_lights;       // Number of elements in the d_lights array
+    // LIGHTS
+    DeviceLight* d_lights;
+    int    num_lights;
 
     // PRIMITIVES
-    Sphere* d_spheres;       // Pointer to the array of Sphere structures on the DEVICE
+    Sphere* d_spheres;
     int     num_spheres;
+    
+    // [BVH] Sphere BVH Array
+    BVHNode* d_sphereBVH; 
 
-    Triangle* d_triangles;   // Pointer to the array of Triangle structures on the DEVICE
+    Triangle* d_triangles;
     int       num_triangles;
 
+    // [BVH] Triangle BVH Array
+    BVHNode* d_triangleBVH; 
+
     // MATERIALS
-    Material* d_materials;   // Pointer to the array of Material structures on the DEVICE
+    Material* d_materials;
     int       num_materials;
 
-    // TRIANGLE VERTEX DATA (Contiguous, indexed arrays)
-    Point3* d_vertices;  // Pointer to the array of vertex positions on the DEVICE
-    Direction3* d_normals;   // Pointer to the array of normals on the DEVICE
+    // TRIANGLE VERTEX DATA
+    Point3* d_vertices;
+    Direction3* d_normals;
 };
 
-// parse scene file and fill scene + output image info
 DeviceScene* parseSceneFile(const std::string &filename,
                      int &img_width,
                      int &img_height,
