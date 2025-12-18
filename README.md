@@ -1,8 +1,5 @@
-# CSCI-5451-Ray-Tracer
+# CSCI-5451 Ray Tracer (OpenMP with BVH)
 
-# OpenMP implementation of Ray Tracer
+This repository contains the OpenMP ray tracer implementation with Acceleration Data Structure BVH.
 
-Compilation command:
-
-g++ -O3 main.cpp scene.cpp intersect.cpp lighting.cpp primitive.cpp rayTrace.cpp -o build/main -fopenmp
-
+TBD
