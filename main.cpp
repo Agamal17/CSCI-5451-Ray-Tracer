@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     auto total_ms = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
 
     std::cout << std::fixed << std::setprecision(3);
-    std::cout << "\n[TIMING][Base] total: " << total_ms << " ms\n\n";
+    std::cout << "\n[TIMING][OpenMP] total: " << total_ms << " ms\n\n";
     
     outputImg.write(imgName.c_str());
 
@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
 
 
 
