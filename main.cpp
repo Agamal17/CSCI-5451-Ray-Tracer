@@ -11,6 +11,7 @@
 #include "Include/scene.h"
 #include <iostream>
 #include <string>
+#include <omp.h>
 #include <chrono>
 #include <iomanip>
 
@@ -34,6 +35,9 @@ int main(int argc, char** argv) {
 
     auto t_total_start = std::chrono::steady_clock::now();
 
+    // OpenMP Implementation
+    omp_set_dynamic(0);
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < img_width; i++) {
         for (int j = 0; j < img_height; j++) {
             double u = halfW - i + 0.5;
@@ -70,6 +74,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
 
 
 
