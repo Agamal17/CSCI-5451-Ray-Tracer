@@ -19,17 +19,24 @@ This repository contains the OpenMP-Parallel ray tracer implementation.
    cd CSCI-5451-Ray-Tracer
    ```
 
-4. Compile the code
+4. Set environmental variables
+   ```bash
+   export OMP_PROC_BIND=spread
+   export OMP_PLACES=cores
+   export OMP_NUM_THREADS=64
+   ```
+   
+5. Compile the code
    ```bash
    g++ -std=c++17 -O2 -fopenmp main.cpp rayTrace.cpp scene.cpp lighting.cpp intersect.cpp primitive.cpp -I Include -o raytracer_omp
    ```
 
-5. Run a quick test (recommended)
+6. Run a quick test (recommended)
    ```bash
    ./raytracer_omp Tests/InterestingScenes/arm-top.txt
    ```
 
-6. Run a complex scene
+7. Run a complex scene
    ```bash
    ./raytracer_omp Tests/InterestingScenes/dragon.txt
    ```
