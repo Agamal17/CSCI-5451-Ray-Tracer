@@ -3,8 +3,117 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <algorithm> // Required for std::swap
 #include "Include/scene.cuh"
 #include "Include/helpers.h"
+
+// ----------------------------------------------------------------------------
+// [BVH] BUILDER HELPERS
+// ----------------------------------------------------------------------------
+
+// Helper to get bounds of a Sphere
+AABB getBounds(const Sphere& s) {
+    AABB box;
+    Point3 radiusVec(s.radius, s.radius, s.radius);
+    box.min = s.center - radiusVec;
+    box.max = s.center + radiusVec;
+    return box;
+}
+
+// Helper to get bounds of a Triangle
+AABB getBounds(const Triangle& t) {
+    AABB box;
+    box.expand(t.v1);
+    box.expand(t.v2);
+    box.expand(t.v3);
+    return box;
+}
+
+// Helper to get centroid
+Point3 getCentroid(const Sphere& s) { return s.center; }
+Point3 getCentroid(const Triangle& t) { return (t.v1 + t.v2 + t.v3) * (1.0f/3.0f); }
+
+// Generic Recursive BVH Builder
+// This REORDERS the primitives vector so leaf nodes point to contiguous ranges.
+template <typename T>
+void BuildBVHRecursive(std::vector<BVHNode>& nodes, std::vector<T>& primitives, int nodeIdx, int start, int end) {
+    BVHNode& node = nodes[nodeIdx];
+    
+    // 1. Calculate Bounds for this node
+    node.bounds = AABB();
+    for (int i = start; i < end; i++) {
+        node.bounds.expand(getBounds(primitives[i]));
+    }
+
+    int count = end - start;
+    if (count <= 2) { // Leaf node strategy (e.g., <= 2 primitives)
+        node.leftFirst = start;
+        node.count = count;
+        return;
+    }
+
+    // 2. Split (Internal Node)
+    node.count = 0; 
+    
+    // Find longest axis
+    Point3 extent = node.bounds.max - node.bounds.min;
+    int axis = 0;
+    if (extent.y > extent.x) axis = 1;
+    if (extent.z > extent.x && extent.z > extent.y) axis = 2;
+
+    float mid = (axis == 0) ? node.bounds.centroid().x : 
+                (axis == 1) ? node.bounds.centroid().y : 
+                              node.bounds.centroid().z;
+
+    // Partition primitives (quicksort partition)
+    int i = start;
+    int j = end - 1;
+    while(i <= j) {
+        Point3 cent = getCentroid(primitives[i]);
+        float val = (axis == 0) ? cent.x : (axis == 1) ? cent.y : cent.z;
+        
+        if (val < mid) {
+            i++;
+        } else {
+            std::swap(primitives[i], primitives[j]);
+            j--;
+        }
+    }
+    
+    int splitIdx = i;
+
+    // Fail-safe: if one side is empty, split in half
+    if (splitIdx == start || splitIdx == end) {
+        splitIdx = start + count / 2;
+    }
+
+    // 3. Create Children
+    int leftChildIdx = nodes.size();
+    nodes.push_back(BVHNode()); // Left
+    nodes.push_back(BVHNode()); // Right
+    
+    // IMPORTANT: Reference may be invalidated by push_back, so re-get the node
+    nodes[nodeIdx].leftFirst = leftChildIdx;
+
+    BuildBVHRecursive(nodes, primitives, leftChildIdx, start, splitIdx);
+    BuildBVHRecursive(nodes, primitives, leftChildIdx + 1, splitIdx, end);
+}
+
+template <typename T>
+std::vector<BVHNode> BuildBVH(std::vector<T>& primitives) {
+    if (primitives.empty()) return {};
+
+    std::vector<BVHNode> nodes;
+    nodes.reserve(primitives.size() * 2);
+    nodes.push_back(BVHNode()); // Root
+
+    BuildBVHRecursive(nodes, primitives, 0, 0, primitives.size());
+    return nodes;
+}
+
+// ----------------------------------------------------------------------------
+// SCENE PARSING
+// ----------------------------------------------------------------------------
 
 // Trim leading and trailing whitespace from a string
 static inline void trimInPlace(std::string &s) {
@@ -41,8 +150,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
     img_height = 480;
     imgName    = "raytraced.bmp";
 
-    // Default material: 0 0 0  1 1 1  0 0 0  5  0 0 0  1
-    // Store materials directly in the vector.
+    // Default material
     Material default_material;
     default_material.ambient  = Color(0, 0, 0);
     default_material.diffuse  = Color(1, 1, 1);
@@ -114,7 +222,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
                >> new_material.ior;
 
             h_temp.h_materials.push_back(new_material);
-            current_material_index = h_temp.h_materials.size() - 1; // Update active material index
+            current_material_index = h_temp.h_materials.size() - 1;
 
         } else if (key == "sphere") {
             float x, y, z, r;
@@ -152,7 +260,6 @@ DeviceScene* parseSceneFile(const std::string &filename,
             ss >> v0 >> v1 >> v2;
 
             Triangle t;
-            // Use indices to retrieve vertices from the collected vector
             if (v0 < h_temp.h_vertices.size() && v1 < h_temp.h_vertices.size() && v2 < h_temp.h_vertices.size()) {
                 t.v1 = h_temp.h_vertices[v0];
                 t.v2 = h_temp.h_vertices[v1];
@@ -161,11 +268,8 @@ DeviceScene* parseSceneFile(const std::string &filename,
                 // Calculate face normal
                 Direction3 fn = cross(t.v2 - t.v1, t.v3 - t.v1).normalized();
                 t.triPlane = Direction3(fn);
-
-                t.n1 = t.n2 = t.n3 = t.triPlane; // Flat shading normals
-
+                t.n1 = t.n2 = t.n3 = t.triPlane; // Flat shading
                 t.flat = true;
-
                 t.material_index = current_material_index;
                 h_temp.h_triangles.push_back(t);
             } else {
@@ -177,23 +281,19 @@ DeviceScene* parseSceneFile(const std::string &filename,
             ss >> v0 >> v1 >> v2 >> n0 >> n1 >> n2;
 
             Triangle t;
-             // Check indices before assignment
             if (v0 < h_temp.h_vertices.size() && v1 < h_temp.h_vertices.size() && v2 < h_temp.h_vertices.size() &&
                 n0 < h_temp.h_normals.size() && n1 < h_temp.h_normals.size() && n2 < h_temp.h_normals.size()) {
 
                 t.v1 = h_temp.h_vertices[v0];
                 t.v2 = h_temp.h_vertices[v1];
                 t.v3 = h_temp.h_vertices[v2];
-
                 t.n1 = h_temp.h_normals[n0];
                 t.n2 = h_temp.h_normals[n1];
                 t.n3 = h_temp.h_normals[n2];
 
                 Direction3 fn = cross(t.v2 - t.v1, t.v3 - t.v1).normalized();
                 t.triPlane = Direction3(fn);
-
                 t.flat = false;
-
                 t.material_index = current_material_index;
                 h_temp.h_triangles.push_back(t);
             } else {
@@ -203,13 +303,12 @@ DeviceScene* parseSceneFile(const std::string &filename,
         } else if (key == "directional_light") {
             float r, g, b, x, y, z;
             ss >> r >> g >> b >> x >> y >> z;
-            // Host side code during parsing:
             DeviceLight new_light;
             new_light.type = DIRECTIONAL_LIGHT;
             new_light.color = Color(r, g, b);
             new_light.direction_data = Direction3(x, y, z);
-
             h_temp.h_lights.push_back(new_light);
+
         } else if (key == "point_light") {
             float r, g, b, x, y, z;
             ss >> r >> g >> b >> x >> y >> z;
@@ -217,12 +316,11 @@ DeviceScene* parseSceneFile(const std::string &filename,
             new_light.type = POINT_LIGHT;
             new_light.color = Color(r, g, b);
             new_light.position_data = Point3(x, y, z);
-
             h_temp.h_lights.push_back(new_light);
+
         } else if (key == "spot_light") {
             float r, g, b, x, y, z, dir_x, dir_y, dir_z, angle1, angle2;
             ss >> r >> g >> b >> x >> y >> z >> dir_x >> dir_y >> dir_z >> angle1 >> angle2;
-
             DeviceLight new_light;
             new_light.type = SPOT_LIGHT;
             new_light.color = Color(r, g, b);
@@ -230,8 +328,8 @@ DeviceScene* parseSceneFile(const std::string &filename,
             new_light.spot_direction = Direction3(dir_x, dir_y, dir_z);
             new_light.angle1 = angle1;
             new_light.angle2 = angle2;
-
             h_temp.h_lights.push_back(new_light);
+
         } else if (key == "max_depth"){
             ss >> h_d_scene.max_depth;
         } else {
@@ -245,9 +343,19 @@ DeviceScene* parseSceneFile(const std::string &filename,
     h_d_scene.camera_fwd = h_d_scene.camera_fwd.normalized();
 
 
-    // --- 3. CUDA ALLOCATION AND TRANSFER (Deep Copy) ---
+    // ------------------------------------------------------------------------
+    // [BVH] BUILD
+    // ------------------------------------------------------------------------
+    // This sorts h_spheres and h_triangles in place!
+    std::vector<BVHNode> h_sphereBVH = BuildBVH(h_temp.h_spheres);
+    std::vector<BVHNode> h_triangleBVH = BuildBVH(h_temp.h_triangles);
 
-    // 3.1. Allocate and Copy Lights
+
+    // ------------------------------------------------------------------------
+    // CUDA ALLOCATION AND TRANSFER
+    // ------------------------------------------------------------------------
+
+    // 1. Lights
     h_d_scene.num_lights = h_temp.h_lights.size();
     if (h_d_scene.num_lights > 0) {
         checkCuda(cudaMalloc((void**)&h_d_scene.d_lights, h_d_scene.num_lights * sizeof(DeviceLight)), "Lights Malloc");
@@ -257,27 +365,41 @@ DeviceScene* parseSceneFile(const std::string &filename,
         h_d_scene.d_lights = nullptr;
     }
 
-    // 3.2. Allocate and Copy Spheres
+    // 2. Spheres & BVH
     h_d_scene.num_spheres = h_temp.h_spheres.size();
     if (h_d_scene.num_spheres > 0) {
+        // Primitives
         checkCuda(cudaMalloc((void**)&h_d_scene.d_spheres, h_d_scene.num_spheres * sizeof(Sphere)), "Spheres Malloc");
         checkCuda(cudaMemcpy(h_d_scene.d_spheres, h_temp.h_spheres.data(),
                    h_d_scene.num_spheres * sizeof(Sphere), cudaMemcpyHostToDevice), "Spheres Memcpy");
+        
+        // BVH
+        checkCuda(cudaMalloc((void**)&h_d_scene.d_sphereBVH, h_sphereBVH.size() * sizeof(BVHNode)), "Sphere BVH Malloc");
+        checkCuda(cudaMemcpy(h_d_scene.d_sphereBVH, h_sphereBVH.data(), 
+                   h_sphereBVH.size() * sizeof(BVHNode), cudaMemcpyHostToDevice), "Sphere BVH Memcpy");
     } else {
         h_d_scene.d_spheres = nullptr;
+        h_d_scene.d_sphereBVH = nullptr;
     }
 
-    // 3.3. Allocate and Copy Triangles
+    // 3. Triangles & BVH
     h_d_scene.num_triangles = h_temp.h_triangles.size();
     if (h_d_scene.num_triangles > 0) {
+        // Primitives
         checkCuda(cudaMalloc((void**)&h_d_scene.d_triangles, h_d_scene.num_triangles * sizeof(Triangle)), "Triangles Malloc");
         checkCuda(cudaMemcpy(h_d_scene.d_triangles, h_temp.h_triangles.data(),
                    h_d_scene.num_triangles * sizeof(Triangle), cudaMemcpyHostToDevice), "Triangles Memcpy");
+
+        // BVH
+        checkCuda(cudaMalloc((void**)&h_d_scene.d_triangleBVH, h_triangleBVH.size() * sizeof(BVHNode)), "Tri BVH Malloc");
+        checkCuda(cudaMemcpy(h_d_scene.d_triangleBVH, h_triangleBVH.data(), 
+                   h_triangleBVH.size() * sizeof(BVHNode), cudaMemcpyHostToDevice), "Tri BVH Memcpy");
     } else {
         h_d_scene.d_triangles = nullptr;
+        h_d_scene.d_triangleBVH = nullptr;
     }
 
-    // 3.4. Allocate and Copy Materials
+    // 4. Materials
     h_d_scene.num_materials = h_temp.h_materials.size();
     if (h_d_scene.num_materials > 0) {
         checkCuda(cudaMalloc((void**)&h_d_scene.d_materials, h_d_scene.num_materials * sizeof(Material)), "Materials Malloc");
@@ -287,8 +409,8 @@ DeviceScene* parseSceneFile(const std::string &filename,
         h_d_scene.d_materials = nullptr;
     }
 
-    // 3.5. Allocate and Copy Vertices
-    if (h_temp.h_vertices.size() > 0) {
+    // 5. Vertices
+    if (!h_temp.h_vertices.empty()) {
         checkCuda(cudaMalloc((void**)&h_d_scene.d_vertices, h_temp.h_vertices.size() * sizeof(Point3)), "Vertices Malloc");
         checkCuda(cudaMemcpy(h_d_scene.d_vertices, h_temp.h_vertices.data(),
                    h_temp.h_vertices.size() * sizeof(Point3), cudaMemcpyHostToDevice), "Vertices Memcpy");
@@ -296,8 +418,8 @@ DeviceScene* parseSceneFile(const std::string &filename,
         h_d_scene.d_vertices = nullptr;
     }
 
-    // 3.6. Allocate and Copy Normals
-    if (h_temp.h_normals.size() > 0) {
+    // 6. Normals
+    if (!h_temp.h_normals.empty()) {
         checkCuda(cudaMalloc((void**)&h_d_scene.d_normals, h_temp.h_normals.size() * sizeof(Direction3)), "Normals Malloc");
         checkCuda(cudaMemcpy(h_d_scene.d_normals, h_temp.h_normals.data(),
                    h_temp.h_normals.size() * sizeof(Direction3), cudaMemcpyHostToDevice), "Normals Memcpy");
@@ -305,7 +427,7 @@ DeviceScene* parseSceneFile(const std::string &filename,
         h_d_scene.d_normals = nullptr;
     }
 
-    // --- 4. Final Shallow Copy of the Scene Struct ---
+    // --- Final Shallow Copy of the Scene Struct ---
     // Copy the h_d_scene struct (which holds simple values and all the D_evice pointers)
     // to a persistent location on the GPU.
     DeviceScene* d_scene_ptr;
