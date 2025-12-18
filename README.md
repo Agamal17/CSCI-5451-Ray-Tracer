@@ -33,7 +33,7 @@ This repository contains the OpenMP-Parallel ray tracer implementation.
    
 6. Compile the code
    ```bash
-   g++ -std=c++17 -O2 -fopenmp main.cpp rayTrace.cpp scene.cpp lighting.cpp intersect.cpp primitive.cpp -I Include -o raytracer_omp
+   g++ -std=c++17 -O3 -fopenmp main.cpp rayTrace.cpp scene.cpp lighting.cpp intersect.cpp primitive.cpp -I Include -o raytracer_omp
    ```
 
 7. Run a quick test (recommended)
