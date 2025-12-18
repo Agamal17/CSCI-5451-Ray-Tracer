@@ -31,10 +31,10 @@ This repository contains the MPI-Parallel ray tracer implementation.
 
 6. Run a quick test (recommended)
    ```bash
-   mpirun -np 64 ./raytracer_mpi Tests/InterestingScences/arm-top.txt
+   mpirun -np 64 ./raytracer_mpi Tests/InterestingScenes/arm-top.txt
    ```
 
 7. Run a complex scene
    ```bash
-   mpirun -np 64 ./raytracer_mpi Tests/InterestingScences/dragon.txt
+   mpirun -np 64 ./raytracer_mpi Tests/InterestingScenes/dragon.txt
    ```
