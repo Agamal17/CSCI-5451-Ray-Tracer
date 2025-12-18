@@ -1,7 +1,5 @@
-# CSCI-5451-Ray-Tracer
+# CSCI-5451 Ray Tracer (MPI with BVH)
 
-# MPI implementation of Ray Tracer
+This repository contains the MPI ray tracer implementation with Acceleration Data Structure BVH.
 
-Compilation command:
-
-
+TBD
