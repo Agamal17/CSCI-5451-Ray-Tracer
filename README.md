@@ -26,10 +26,10 @@ This repository contains the base sequential ray tracer implementation.
 
 5. Run a quick test (recommended, 6 minutes)
    ```bash
-   ./raytracer Tests/InterestingScenes/arm-top.txt
+   ./raytracer Tests/InterestingScences/arm-top.txt
    ```
 
 6. Run a complex scene (slow, takes hours of time)
    ```bash
-   ./raytracer Tests/InterestingScenes/dragon.txt
+   ./raytracer Tests/InterestingScences/dragon.txt
    ```
