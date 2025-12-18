@@ -38,10 +38,10 @@ This repository contains the OpenMP-Parallel ray tracer implementation.
 
 7. Run a quick test (recommended)
    ```bash
-   ./raytracer_omp Tests/InterestingScences/arm-top.txt
+   ./raytracer_omp Tests/InterestingScenes/arm-top.txt
    ```
 
 8. Run a complex scene
    ```bash
-   ./raytracer_omp Tests/InterestingScences/dragon.txt
+   ./raytracer_omp Tests/InterestingScenes/dragon.txt
    ```
