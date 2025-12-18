@@ -27,8 +27,30 @@ TRI_SCENES=(
 # ============================================================
 
 EXTRA_SCENES=(
-    "Tests/sword.txt"
-    "Tests/spaceship.txt"
+      "Tests/WatchChallenge/watch-norefract.txt"
+  "Tests/WatchChallenge/watch-bluegold.txt"
+  "Tests/SphereExamples/spheres1.txt"
+  "Tests/SphereExamples/spot_sphere.txt"
+  "Tests/SphereExamples/spheres2.txt"
+  "Tests/SphereExamples/bear.txt"
+  "Tests/SphereExamples/ambient_sphere.txt"
+  "Tests/ComplexExamples/test.txt"
+  "Tests/ComplexExamples/dragon.txt"
+  "Tests/TriangleExamples/triangle.txt"
+  "Tests/TriangleExamples/outdoor.txt"
+  "Tests/TriangleExamples/test_reasonable.txt"
+  "Tests/InterestingScences/arm-reach.txt"
+  "Tests/InterestingScences/dragon.txt"
+  "Tests/InterestingScences/gear.txt"
+  "Tests/InterestingScences/plant-h.txt"
+  "Tests/InterestingScences/ShadowTest.txt"
+  "Tests/InterestingScences/bottle-nolabel.txt"
+  "Tests/InterestingScences/bottle.txt"
+  "Tests/InterestingScences/arm-top.txt"
+  # "Tests/cat.txt"
+  #  "Tests/character.txt"
+  # "Tests/island.txt"
+  #  "Tests/lily.txt"
 )
 
 # ============================================================
