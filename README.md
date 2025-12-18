@@ -18,6 +18,7 @@ This repository contains the OpenMP-Parallel ray tracer implementation.
    ```bash
    cd CSCI-5451-Ray-Tracer
    ```
+   
 4. Cross Verify branch using command
    ```bash
    git branch
