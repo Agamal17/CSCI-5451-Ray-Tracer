@@ -30,10 +30,10 @@ This repository contains the CUDA-Parallel ray tracer implementation.
 
 6. Run a quick test (recommended)
    ```bash
-   ./raytracer_cuda Tests/InterestingScenes/arm-top.txt
+   ./raytracer_cuda Tests/InterestingScences/arm-top.txt
    ```
 
 7. Run a complex scene (slow, but faster than base takes now like 70 seconds)
    ```bash
-   ./raytracer_cuda Tests/InterestingScenes/dragon.txt
+   ./raytracer_cuda Tests/InterestingScences/dragon.txt
    ```
