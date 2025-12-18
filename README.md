@@ -11,7 +11,7 @@ This repository contains the OpenMP-Parallel ray tracer implementation.
 
 2. Clone the repository
    ```bash
-   git clone https://github.com/Agamal17/CSCI-5451-Ray-Tracer.git
+   git clone --branch OpenMP --single-branch https://github.com/Agamal17/CSCI-5451-Ray-Tracer.git
    ```
 
 3. Navigate to the project directory
