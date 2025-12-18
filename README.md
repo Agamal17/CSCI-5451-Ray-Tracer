@@ -21,7 +21,7 @@ This repository contains the base sequential ray tracer implementation.
 
 4. Compile the code
    ```bash
-   g++ -std=c++17 -O2 main.cpp rayTrace.cpp scene.cpp lighting.cpp intersect.cpp primitive.cpp -I Include -o raytracer
+   g++ -std=c++17 -O3 main.cpp rayTrace.cpp scene.cpp lighting.cpp intersect.cpp primitive.cpp -I Include -o raytracer
    ```
 
 5. Run a quick test (recommended, 6 minutes)
