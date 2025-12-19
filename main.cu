@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
 
-    std::cout << "[Timing][CUDA] total: " << milliseconds << " ms\n\n" << std::endl;
+    std::cout << "[Timing][CUDA-BVH] total: " << milliseconds << " ms\n\n" << std::endl;
 
     // Clean up events
     cudaEventDestroy(start);
