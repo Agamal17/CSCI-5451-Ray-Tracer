@@ -336,6 +336,16 @@ DeviceScene* parseSceneFile(const std::string &filename,
             std::cerr << "Warning: unknown key " << key << " in " << filename << std::endl;
         }
     }
+    
+    // ------------------------------------------------------------------------
+    // FIX: Overwrite max_depth for refraction scenes
+    // ------------------------------------------------------------------------
+    // Some scene files (e.g. spheres2.txt) specify max_depth 2, which is insufficient
+    // for transparent objects (requires entry + exit + background hit).
+    // We enforce a minimum depth here.
+    if (h_d_scene.max_depth < 5) {
+        h_d_scene.max_depth = 5;
+    }
 
     // Final calculations for camera orientation
     h_d_scene.camera_right = cross(h_d_scene.camera_up, h_d_scene.camera_fwd).normalized();
