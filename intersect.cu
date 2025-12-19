@@ -149,17 +149,6 @@ __device__ bool FindIntersection(const DeviceScene* scene, const Ray ray, HitInf
     hit->distance = 1e30f;
     const void* hitPrimitive = nullptr; // Track what we hit for normal calc
     int hitType = 0; // 0=None, 1=Sphere, 2=Triangle
-
-    // 1. Traverse Spheres
-    if (scene->d_sphereBVH) {
-         traverseBVH(scene->d_sphereBVH, scene->d_spheres, ray, hit, closest_t, 
-            [&](const Ray& r, const Sphere& s) { return intersectSphere(r, s); });
-         
-         // If we updated distance, we hit a sphere
-         if (hit->distance < 1e29f && hitType == 0) hitType = 1; // Simplification, need better tracking
-    } else {
-        // Fallback for linear if BVH fails/empty (though BVH covers all)
-    }
     
     // To correctly track normals, traverseBVH needs to populate the normal. 
     // Since traverseBVH is generic, let's specialize slightly or pass a lambda that updates normal.
