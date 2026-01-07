@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
 
     auto t_total_start = std::chrono::steady_clock::now();
 
+    FILE* logFile = fopen("log.csv", "w");
     for (int i = 0; i < img_width; i++) {
         for (int j = 0; j < img_height; j++) {
             double u = halfW - i + 0.5;
@@ -42,6 +43,7 @@ int main(int argc, char** argv) {
             Ray ray(scene.camera_pos, p - scene.camera_pos);
             Color result = rayTrace(ray, scene.max_depth, scene);
             outputImg.getPixel(i, j) = result;
+            fprintf(logFile, "%d,%d,%f,%f,%f\n", i, j, result.r, result.g, result.b);
         }
     }
 
@@ -50,7 +52,9 @@ int main(int argc, char** argv) {
 
     std::cout << std::fixed << std::setprecision(3);
     std::cout << "\n[TIMING][Base] total: " << total_ms << " ms\n\n";
-    
+
+    fprintf(logFile, "%f,%s,%d,%d,%d\n", total_ms, "CPU 1-core", 0, 0, 0);
+    fclose(logFile);
     outputImg.write(imgName.c_str());
 
     // Free heap allocations
