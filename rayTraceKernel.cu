@@ -1,4 +1,6 @@
 #define _USE_MATH_DEFINES
+#include <corecrt_math_defines.h>
+
 #include "Include/types.cuh"
 #include "Include/ray.cuh"
 #include "Include/rayTraceKernel.cuh"

@@ -36,4 +36,5 @@ __device__ Color getLightContribution(
     const DeviceScene* d_scene,
     const DeviceLight light,
     const Ray ray,
-    const HitInfo hit);
+    const HitInfo hit
+);

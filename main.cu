@@ -58,6 +58,9 @@ int main(int argc, char** argv) {
     // Launch the kernel
     rayTraceKernel<<<num_blocks, threads_per_block>>>(d_output_img, img_width, img_height, d_scene);
 
+    // Synchronize and check for errors that occurred inside the kernel
+    checkCuda(cudaDeviceSynchronize(), "Kernel Execution and Synchronization");
+
     // Record the stop event
     cudaEventRecord(stop);
 
@@ -72,9 +75,6 @@ int main(int argc, char** argv) {
     // Clean up events
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
-
-    // Synchronize and check for errors that occurred inside the kernel
-    checkCuda(cudaDeviceSynchronize(), "Kernel Execution and Synchronization");
 
     // --- 4. Final Data Transfer and Cleanup ---
     // Copy result from Device to Host
